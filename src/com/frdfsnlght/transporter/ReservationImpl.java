@@ -826,7 +826,8 @@ public final class ReservationImpl implements Reservation {
 
             Context ctx = new Context(player);
 
-            if (toGateLocal.getTeleportFormat() != null) {
+            /* Changes for own server, Hide warp messages if player isn't OP. */
+            if (player.isOp() && toGateLocal.getTeleportFormat() != null) {
                 String format = toGateLocal.getTeleportFormat();
                 format = format.replace("%player%", player.getDisplayName());
                 format = format.replace("%toGateCtx%", toGateLocal.getName(ctx));
