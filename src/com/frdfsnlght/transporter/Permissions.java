@@ -15,7 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
-import com.nijiko.permissions.PermissionHandler;
+//import com.nijiko.permissions.PermissionHandler;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public final class Permissions {
 
     private static boolean basicPermsInitted = false;
     private static net.milkbowl.vault.permission.Permission vaultPlugin = null;
-    private static PermissionHandler permissionsPlugin = null;
+//    private static PermissionHandler permissionsPlugin = null;
     private static PermissionManager permissionsExPlugin = null;
 
     public static boolean basicPermsAvailable() {
@@ -86,6 +86,7 @@ public final class Permissions {
         return true;
     }
 
+    /**
     public static boolean permissionsAvailable() {
         if (! Config.getUsePermissions()) return false;
         Plugin p = Global.plugin.getServer().getPluginManager().getPlugin("Permissions");
@@ -106,6 +107,7 @@ public final class Permissions {
         Utils.info("Initialized Permissions for Permissions");
         return true;
     }
+    **/
 
     public static boolean permissionsExAvailable() {
         if (! Config.getUsePermissionsEx()) return false;
@@ -222,6 +224,7 @@ public final class Permissions {
             return;
         }
 
+        /**
         if (permissionsAvailable()) {
             for (String perm : perms) {
                 if (requireAll) {
@@ -235,6 +238,7 @@ public final class Permissions {
                 throw new PermissionsException("not permitted");
             return;
         }
+        **/
 
         if (permissionsExAvailable()) {
             for (String perm : perms) {

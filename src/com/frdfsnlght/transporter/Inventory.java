@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_5.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -58,7 +58,7 @@ public final class Inventory {
         MaterialData data = stack.getData();
         if (data != null)
             s.put("data", (int)data.getData());
-        net.minecraft.server.ItemStack mcStack = (net.minecraft.server.ItemStack)((CraftItemStack)stack).getHandle();
+        net.minecraft.server.v1_4_5.ItemStack mcStack = (net.minecraft.server.v1_4_5.ItemStack)((CraftItemStack)stack).getHandle();
         if (mcStack != null)
             s.put("tag", NBT.encodeNBT(mcStack.getTag()));
         /*
@@ -82,7 +82,7 @@ public final class Inventory {
             if (data != null)
                 data.setData((byte)s.getInt("data"));
         }
-        net.minecraft.server.ItemStack mcStack = (net.minecraft.server.ItemStack)((CraftItemStack)stack).getHandle();
+        net.minecraft.server.v1_4_5.ItemStack mcStack = (net.minecraft.server.v1_4_5.ItemStack)((CraftItemStack)stack).getHandle();
         if (mcStack != null)
             mcStack.setTag(NBT.decodeNBT(s.getMap("tag")));
         /*
