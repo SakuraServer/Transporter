@@ -21,16 +21,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import net.minecraft.server.v1_4_5.NBTBase;
-import net.minecraft.server.v1_4_5.NBTTagByte;
-import net.minecraft.server.v1_4_5.NBTTagCompound;
-import net.minecraft.server.v1_4_5.NBTTagDouble;
-import net.minecraft.server.v1_4_5.NBTTagFloat;
-import net.minecraft.server.v1_4_5.NBTTagInt;
-import net.minecraft.server.v1_4_5.NBTTagList;
-import net.minecraft.server.v1_4_5.NBTTagLong;
-import net.minecraft.server.v1_4_5.NBTTagShort;
-import net.minecraft.server.v1_4_5.NBTTagString;
+import net.minecraft.server.v1_4_6.NBTBase;
+import net.minecraft.server.v1_4_6.NBTTagByte;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagDouble;
+import net.minecraft.server.v1_4_6.NBTTagFloat;
+import net.minecraft.server.v1_4_6.NBTTagInt;
+import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_6.NBTTagLong;
+import net.minecraft.server.v1_4_6.NBTTagShort;
+import net.minecraft.server.v1_4_6.NBTTagString;
 
 /**
  *

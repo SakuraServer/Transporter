@@ -320,14 +320,14 @@ public class Utils {
 
     public static int worker(Runnable run) {
         if (! Global.enabled) return -1;
-        return Global.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(Global.plugin, run);
+        return Global.plugin.getServer().getScheduler().runTaskAsynchronously(Global.plugin, run).getTaskId();
     }
 
     // delay is millis
     public static int workerDelayed(Runnable run, long delay) {
         if (! Global.enabled) return -1;
         long ticks = delay / 50;
-        return Global.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(Global.plugin, run, ticks);
+        return Global.plugin.getServer().getScheduler().runTaskLaterAsynchronously(Global.plugin, run, ticks).getTaskId();
     }
 
     public static void cancelTask(int taskId) {
