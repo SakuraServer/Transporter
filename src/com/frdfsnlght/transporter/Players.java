@@ -69,7 +69,7 @@ public final class Players {
         player.setFireTicks(data.getInt("fireTicks", 0));
         player.setLevel(data.getInt("level", 0));
         player.setExp(data.getFloat("exp", 0));
-        ItemStack[] inventory = Inventory.decodeItemStackArray(data.getMapList("inventory"));
+        ItemStack[] inventory = Inventory.decodeItemStackArray(data.getHashMap("inventory"));
         if (inventory != null) {
             PlayerInventory inv = player.getInventory();
             for (int slot = 0; slot < inventory.length; slot++) {
@@ -79,7 +79,7 @@ public final class Players {
                     inv.setItem(slot, inventory[slot]);
             }
         }
-        ItemStack[] armor = Inventory.decodeItemStackArray(data.getMapList("armor"));
+        ItemStack[] armor = Inventory.decodeItemStackArray(data.getHashMap("armor"));
         if (armor != null) {
             PlayerInventory inv = player.getInventory();
             inv.setArmorContents(armor);

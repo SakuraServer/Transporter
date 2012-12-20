@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -33,66 +32,20 @@ import org.bukkit.material.MaterialData;
  */
 public final class Inventory {
 
-    public static List<TypeMap> encodeItemStackArray(ItemStack[] isa) {
+    public static HashMap<Integer,Object> encodeItemStackArray(ItemStack[] isa) {
         if (isa == null) return null;
-        List<TypeMap> inv = new ArrayList<TypeMap>();
+        HashMap<Integer,Object> inv = new HashMap<Integer,Object>();
         for (int slot = 0; slot < isa.length; slot++)
-            inv.add(encodeItemStack(isa[slot]));
+            inv.put(slot, isa[slot].serialize());
         return inv;
     }
 
-    public static ItemStack[] decodeItemStackArray(List<TypeMap> inv) {
+    public static ItemStack[] decodeItemStackArray(HashMap<Integer,Object> inv) {
         if (inv == null) return null;
         ItemStack[] decoded = new ItemStack[inv.size()];
         for (int slot = 0; slot < inv.size(); slot++)
-            decoded[slot] = decodeItemStack(inv.get(slot));
+            decoded[slot] = ItemStack.deserialize((Map<String,Object>)inv.get(slot));
         return decoded;
-    }
-
-    public static TypeMap encodeItemStack(ItemStack stack) {
-        if (stack == null) return null;
-        TypeMap s = new TypeMap();
-        s.put("type", stack.getTypeId());
-        s.put("amount", stack.getAmount());
-        s.put("durability", stack.getDurability());
-        MaterialData data = stack.getData();
-        if (data != null)
-            s.put("data", (int)data.getData());
-        net.minecraft.server.v1_4_6.ItemStack mcStack = (net.minecraft.server.v1_4_6.ItemStack)((CraftItemStack)stack).getHandle();
-        if (mcStack != null)
-            s.put("tag", NBT.encodeNBT(mcStack.getTag()));
-        /*
-         * Enchantments are included in the tags above.
-        TypeMap ench = new TypeMap();
-        for (Enchantment e : stack.getEnchantments().keySet())
-            ench.put(e.getName(), stack.getEnchantments().get(e));
-        s.put("enchantments", ench);
-        */
-        return s;
-    }
-
-    public static ItemStack decodeItemStack(TypeMap s) {
-        if (s == null) return null;
-        CraftItemStack stack = new CraftItemStack(
-            s.getInt("type"),
-            s.getInt("amount"),
-            (short)s.getInt("durability"));
-        if (s.containsKey("data")) {
-            MaterialData data = stack.getData();
-            if (data != null)
-                data.setData((byte)s.getInt("data"));
-        }
-        net.minecraft.server.v1_4_6.ItemStack mcStack = (net.minecraft.server.v1_4_6.ItemStack)((CraftItemStack)stack).getHandle();
-        if (mcStack != null)
-            mcStack.setTag(NBT.decodeNBT(s.getMap("tag")));
-        /*
-         * Enchantments are included in the tags above.
-        TypeMap ench = s.getMap("enchantments");
-        if (ench != null)
-            for (String name : ench.keySet())
-                stack.addEnchantment(Enchantment.getByName(name), ench.getInt(name));
-        */
-        return stack;
     }
 
     public static String normalizeItem(String item) {
