@@ -51,8 +51,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.minecraft.server.v1_4_6.NetServerHandler;
 import net.minecraft.server.v1_4_6.Packet201PlayerInfo;
+import net.minecraft.server.v1_4_6.PlayerConnection;
+
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -2027,7 +2028,7 @@ public final class Server implements OptionsListener, RemoteServer {
         for (RemotePlayerImpl remotePlayer : remotePlayers.values()) {
             String playerName = formatPlayerListName(remotePlayer);
             if (playerName == null) continue;
-            NetServerHandler nsh = ((CraftPlayer)player).getHandle().netServerHandler;
+            PlayerConnection nsh = ((CraftPlayer)player).getHandle().playerConnection;
             if (nsh == null) continue;
             nsh.sendPacket(new Packet201PlayerInfo(playerName, true, 9999));
         }
