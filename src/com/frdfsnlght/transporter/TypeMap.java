@@ -542,7 +542,18 @@ public final class TypeMap extends HashMap<String,Object> implements Cloneable {
         if (o instanceof TypeMap) return (TypeMap)o;
         return def;
     }
+    
+    public HashMap getHashMap(String key) {
+        return getHashMap(key,null);
+    }
 
+    public HashMap getHashMap(String key, TypeMap def){
+                Object o = get(key);
+        if (o == null) return def;
+        if (o instanceof HashMap) return (HashMap)o;
+        return def;
+    }
+    
     @SuppressWarnings("unchecked")
     public List<Object> getList(String key) {
         Object o = get(key);

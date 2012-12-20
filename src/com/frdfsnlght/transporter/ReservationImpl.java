@@ -228,7 +228,7 @@ public final class ReservationImpl implements Reservation {
         clientAddress = in.getString("clientAddress");
         fromLocation = new Location(null, in.getDouble("fromX"), in.getDouble("fromY"), in.getDouble("fromZ"), in.getFloat("fromYaw"), in.getFloat("fromPitch"));
         fromVelocity = new Vector(in.getDouble("velX"), in.getDouble("velY"), in.getDouble("velZ"));
-        inventory = Inventory.decodeItemStackArray(in.getMapList("inventory"));
+        inventory = Inventory.decodeItemStackArray(in.getHashMap("inventory"));
         health = in.getInt("health");
         remainingAir = in.getInt("remainingAir");
         fireTicks = in.getInt("fireTicks");
@@ -237,7 +237,7 @@ public final class ReservationImpl implements Reservation {
         saturation = in.getFloat("saturation");
         gameMode = in.getString("gameMode");
         heldItemSlot = in.getInt("heldItemSlot");
-        armor = Inventory.decodeItemStackArray(in.getMapList("armor"));
+        armor = Inventory.decodeItemStackArray(in.getHashMap("armor"));
         level = in.getInt("level");
         xp = in.getFloat("xp");
         potionEffects = PotionEffects.decodePotionEffects(in.getMapList("potionEffects"));
