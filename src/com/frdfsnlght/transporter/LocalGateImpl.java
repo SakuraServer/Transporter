@@ -1288,7 +1288,7 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
             if (s.equals("-")) s = "";
             else if (s.equals("*")) s = null;
         }
-        if (s == null) s = "%GOLD%teleported to '%toGateCtx%'";
+        if (s == null) s = "%GOLD%'%toGateCtx%' にテレポートしました";
         teleportFormat = s;
         dirty = true;
     }
@@ -1304,7 +1304,7 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
             if (s.equals("-")) s = "";
             else if (s.equals("*")) s = null;
         }
-        if (s == null) s = "this gate has no links";
+        if (s == null) s = "このゲートは接続先がありません";
         noLinksFormat = s;
         dirty = true;
     }
@@ -1320,7 +1320,7 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
             if (s.equals("-")) s = "";
             else if (s.equals("*")) s = null;
         }
-        if (s == null) s = "no link is selected";
+        if (s == null) s = "接続先がオフラインまたは不明なゲートです";
         noLinkSelectedFormat = s;
         dirty = true;
     }
