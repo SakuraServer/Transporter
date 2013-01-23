@@ -63,9 +63,7 @@ public final class BuildableBlock {
         physics = map.getBoolean("physics", false);
 
         if (type == -1) return;
-
         String str;
-
         str = map.getString("data");
         if (str != null) {
             try {
@@ -236,7 +234,13 @@ public final class BuildableBlock {
 
         float fromYaw = Utils.directionToYaw(myDir.getFacing());
         float toYaw = Utils.directionToYaw(otherDir.getFacing());
-        float result = toYaw - fromYaw + 90;
+        float result = toYaw - fromYaw + 180;
+//        float result = toYaw - fromYaw + 90;
+
+        Utils.debug("fromYaw=%s", fromYaw);
+        Utils.debug("toYaw=%s", toYaw);
+        Utils.debug("result=%s", result);
+
         return Utils.yawToDirection(result);
     }
 
@@ -250,6 +254,11 @@ public final class BuildableBlock {
         if (md == null) return;
         if (! (md instanceof Directional)) return;
         Directional dir = (Directional)md;
+
+//        Utils.debug("facing=%s", dir.getFacing());
+//        Utils.debug("to=%s", to);
+//        Utils.debug("rotate result=%s", Utils.rotate(dir.getFacing(), to));
+
         dir.setFacingDirection(Utils.rotate(dir.getFacing(), to));
         data = md.getData();
     }

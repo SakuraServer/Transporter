@@ -51,16 +51,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.minecraft.server.NetServerHandler;
-import net.minecraft.server.Packet201PlayerInfo;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 /**
@@ -92,7 +88,6 @@ public final class Server implements OptionsListener, RemoteServer {
         OPTIONS.add("announcePlayers");
         OPTIONS.add("playerListFormat");
         OPTIONS.add("mExecTarget");
-        OPTIONS.add("bungeeServer");
 
         MESSAGE_HANDLERS.put("nop", null);
         MESSAGE_HANDLERS.put("error", null);
@@ -194,7 +189,6 @@ public final class Server implements OptionsListener, RemoteServer {
 
     private String playerListFormat = null;
     private boolean mExecTarget = true;
-    private String bungeeServer = null;
 
     private Connection connection = null;
     private boolean allowReconnect = true;
@@ -208,6 +202,7 @@ public final class Server implements OptionsListener, RemoteServer {
     private String remoteServer = null;
     private String remoteCluster = null;
     private String remoteRealm = null;
+    private String remoteBungeeServer = null;
 
     private boolean readyForAPI = false;
 
@@ -250,7 +245,6 @@ public final class Server implements OptionsListener, RemoteServer {
             setAnnouncePlayers(map.getBoolean("announcePlayers", false));
             setPlayerListFormat(map.getString("playerListFormat", "%italic%%player%"));
             setMExecTarget(map.getBoolean("mExecTarget", true));
-            setBungeeServer(map.getString("bungeeServer", null));
         } catch (IllegalArgumentException e) {
             throw new ServerException(e.getMessage());
         }
@@ -618,19 +612,6 @@ public final class Server implements OptionsListener, RemoteServer {
         mExecTarget = b;
     }
 
-    @Override
-    public String getBungeeServer() {
-        return bungeeServer;
-    }
-
-    @Override
-    public void setBungeeServer(String s) {
-        if (s != null) {
-            if (s.isEmpty() || (s.equals("-"))) s = null;
-        }
-        bungeeServer = s;
-    }
-
     public void getOptions(Context ctx, String name) throws OptionsException, PermissionsException {
         options.getOptions(ctx, name);
     }
@@ -741,17 +722,21 @@ public final class Server implements OptionsListener, RemoteServer {
         return remoteRealm;
     }
 
+    public String getRemoteBungeeServer() {
+        return remoteBungeeServer;
+    }
+
     @Override
     public TransferMethod getTransferMethod() {
-        if (getBungeeServer() != null)
+        if ((remoteCluster != null) &&
+            remoteCluster.equals(Network.getClusterName()) &&
+            (remoteBungeeServer != null))
             return TransferMethod.Bungee;
         return TransferMethod.ClientKick;
     }
 
     @Override
     public String getKickMessage(InetSocketAddress clientAddress) {
-        // TODO: handle cluster setting
-        // if toServer.getCluster().equals(Network.getCluster()) then send Cluster Redirect, otherwise send Client Redirect
         String addr = getReconnectAddressForClient(clientAddress);
         if (addr == null) {
             Utils.warning("reconnect address for '%s' is null?", name);
@@ -794,7 +779,6 @@ public final class Server implements OptionsListener, RemoteServer {
         node.put("announcePlayers", announcePlayers);
         node.put("playerListFormat", playerListFormat);
         node.put("mExecTarget", mExecTarget);
-        node.put("bungeeServer", bungeeServer);
         return node;
     }
 
@@ -1299,6 +1283,7 @@ public final class Server implements OptionsListener, RemoteServer {
         out.put("server", Global.plugin.getServer().getServerName());
         out.put("cluster", Network.getClusterName());
         out.put("realm", Realm.isStarted() ? Realm.getName() : null);
+        out.put("bungeeServer", Network.getBungeeServer());
 
         // NAT stuff
         if (Network.getSendPrivateAddress() &&
@@ -1348,6 +1333,7 @@ public final class Server implements OptionsListener, RemoteServer {
 
         remoteCluster = message.getString("cluster");
         remoteRealm = message.getString("realm");
+        remoteBungeeServer = message.getString("bungeeServer");
         try {
             expandPublicAddress(remotePublicAddress);
         } catch (IllegalArgumentException e) {
@@ -2011,7 +1997,8 @@ public final class Server implements OptionsListener, RemoteServer {
         remotePlayers.put(playerName, player);
         playerName = formatPlayerListName(player);
         if (playerName == null) return;
-        ((CraftServer)Global.plugin.getServer()).getHandle().sendAll(new Packet201PlayerInfo(playerName, true, 9999));
+        Global.compatibility.sendAllPacket201PlayerInfo(playerName, true, 9999);
+        //((CraftServer)Global.plugin.getServer()).getHandle().sendAll(new Packet201PlayerInfo(playerName, true, 9999));
     }
 
     private void removeRemotePlayer(String playerName) {
@@ -2019,7 +2006,8 @@ public final class Server implements OptionsListener, RemoteServer {
         if (player == null) return;
         playerName = formatPlayerListName(player);
         if (playerName == null) return;
-        ((CraftServer)Global.plugin.getServer()).getHandle().sendAll(new Packet201PlayerInfo(playerName, false, 9999));
+        Global.compatibility.sendAllPacket201PlayerInfo(playerName, false, 9999);
+        //((CraftServer)Global.plugin.getServer()).getHandle().sendAll(new Packet201PlayerInfo(playerName, false, 9999));
     }
 
     private void sendRemotePlayers(Player player) {
@@ -2027,9 +2015,10 @@ public final class Server implements OptionsListener, RemoteServer {
         for (RemotePlayerImpl remotePlayer : remotePlayers.values()) {
             String playerName = formatPlayerListName(remotePlayer);
             if (playerName == null) continue;
-            NetServerHandler nsh = ((CraftPlayer)player).getHandle().netServerHandler;
-            if (nsh == null) continue;
-            nsh.sendPacket(new Packet201PlayerInfo(playerName, true, 9999));
+            Global.compatibility.sendPlayerPacket201PlayerInfo(player, playerName, true, 9999);
+            //NetServerHandler nsh = ((CraftPlayer)player).getHandle().netServerHandler;
+            //if (nsh == null) continue;
+            //nsh.sendPacket(new Packet201PlayerInfo(playerName, true, 9999));
         }
     }
 

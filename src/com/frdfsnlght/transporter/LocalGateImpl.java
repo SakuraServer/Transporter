@@ -77,6 +77,7 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
 
     static {
         BASEOPTIONS.add("duration");
+        BASEOPTIONS.add("direction");
         BASEOPTIONS.add("linkLocal");
         BASEOPTIONS.add("linkWorld");
         BASEOPTIONS.add("linkServer");
@@ -116,6 +117,11 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         BASEOPTIONS.add("noLinkSelectedFormat");
         BASEOPTIONS.add("invalidLinkFormat");
         BASEOPTIONS.add("unknownLinkFormat");
+        BASEOPTIONS.add("countdown");
+        BASEOPTIONS.add("countdownInterval");
+        BASEOPTIONS.add("countdownFormat");
+        BASEOPTIONS.add("countdownIntervalFormat");
+        BASEOPTIONS.add("countdownCancelFormat");
         BASEOPTIONS.add("linkLocalCost");
         BASEOPTIONS.add("linkWorldCost");
         BASEOPTIONS.add("linkServerCost");
@@ -179,6 +185,11 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
     protected String markerFormat;
     protected boolean hidden;
     protected int linkAddDistance;
+    protected int countdown;
+    protected int countdownInterval;
+    protected String countdownFormat;
+    protected String countdownIntervalFormat;
+    protected String countdownCancelFormat;
 
     protected double linkLocalCost;
     protected double linkWorldCost;
@@ -217,6 +228,19 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         } catch (IllegalArgumentException iae) {
             throw new GateException(iae.getMessage() + " direction");
         }
+
+        // fix for Bukkit direction changes
+//        if (! conf.getBoolean("directionFixed", false)) {
+//            Utils.debug("fixed direction from: %s", direction);
+//            switch (direction) {
+//                case NORTH: direction = BlockFace.WEST; break;
+//                case SOUTH: direction = BlockFace.EAST; break;
+//                case EAST: direction = BlockFace.NORTH; break;
+//                case WEST: direction = BlockFace.SOUTH; break;
+//            }
+//            Utils.debug("to: %s", direction);
+//        }
+
         duration = conf.getInt("duration", -1);
         linkLocal = conf.getBoolean("linkLocal", true);
         linkWorld = conf.getBoolean("linkWorld", true);
@@ -336,6 +360,11 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         markerFormat = conf.getString("markerFormat", "%name%");
         hidden = conf.getBoolean("hidden", false);
         linkAddDistance = conf.getInt("linkAddDistance", -1);
+        countdown = conf.getInt("countdown", -1);
+        countdownInterval = conf.getInt("countdownInterval", 1000);
+        countdownFormat = conf.getString("countdownFormat", "%RED%Teleport countdown started...");
+        countdownIntervalFormat = conf.getString("countdownIntervalFormat", "%RED%Teleport in %time% seconds...");
+        countdownCancelFormat = conf.getString("countdownCancelFormat", "Teleport canceled");
 
         incoming.addAll(conf.getStringList("incoming", new ArrayList<String>()));
         outgoing = conf.getString("outgoing");
@@ -356,7 +385,10 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         name = gateName;
         this.creatorName = creatorName;
         this.direction = direction;
+        setDefaults();
+    }
 
+    private void setDefaults() {
         setDuration(-1);
         setLinkLocal(true);
         setLinkWorld(true);
@@ -400,6 +432,11 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         setMarkerFormat(null);
         setHidden(false);
         setLinkAddDistance(-1);
+        setCountdown(-1);
+        setCountdownInterval(1000);
+        setCountdownFormat(null);
+        setCountdownIntervalFormat(null);
+        setCountdownCancelFormat(null);
 
         setLinkLocalCost(0);
         setLinkWorldCost(0);
@@ -583,7 +620,10 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
 
     public void destroy(boolean unbuild) {
         close();
-        file.delete();
+        if (! file.delete())
+            Utils.warning("unable to delete gate file %s", file.getAbsolutePath());
+        else
+            Utils.info("deleted gate file %s", file.getAbsolutePath());
         file = null;
         onDestroy(unbuild);
     }
@@ -639,6 +679,7 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         if (! portalOpen) return;
         portalOpen = false;
 
+        ReservationImpl.removeCountdowns(this);
         incoming.clear();
         onClose();
         onDestinationChanged();
@@ -662,6 +703,7 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         conf.set("type", getType().toString());
         conf.set("creatorName", creatorName);
         conf.set("direction", direction.toString());
+//        conf.set("directionFixed", true);
         conf.set("duration", duration);
         conf.set("linkLocal", linkLocal);
         conf.set("linkWorld", linkWorld);
@@ -715,6 +757,12 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         conf.set("markerFormat", markerFormat);
         conf.set("hidden", hidden);
         conf.set("linkAddDistance", linkAddDistance);
+        conf.set("countdown", countdown);
+        conf.set("countdownInterval", countdownInterval);
+        conf.set("countdownFormat", countdownFormat);
+        conf.set("countdownIntervalFormat", countdownIntervalFormat);
+        conf.set("countdownCancelFormat", countdownCancelFormat);
+
         conf.set("portalOpen", portalOpen);
 
         if (! incoming.isEmpty()) conf.set("incoming", new ArrayList<String>(incoming));
@@ -756,10 +804,6 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
         return creatorName;
     }
 
-    public BlockFace getDirection() {
-        return direction;
-    }
-
     /* Begin options */
 
     @Override
@@ -771,6 +815,17 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
     public void setDuration(int i) {
         if (i <= 0) i = -1;
         duration = i;
+        dirty = true;
+    }
+
+    @Override
+    public BlockFace getDirection() {
+        return direction;
+    }
+
+    @Override
+    public void setDirection(BlockFace dir) {
+        direction = dir;
         dirty = true;
     }
 
@@ -1342,6 +1397,77 @@ public abstract class LocalGateImpl extends GateImpl implements LocalGate, Optio
     public void setLinkAddDistance(int i) {
         if (i <= 0) i = -1;
         linkAddDistance = i;
+        dirty = true;
+    }
+
+    @Override
+    public int getCountdown() {
+        return countdown;
+    }
+
+    @Override
+    public void setCountdown(int i) {
+        countdown = i;
+        dirty = true;
+    }
+
+    @Override
+    public int getCountdownInterval() {
+        return countdownInterval;
+    }
+
+    @Override
+    public void setCountdownInterval(int i) {
+        if (i < 1) i = 1;
+        countdownInterval = i;
+        dirty = true;
+    }
+
+    @Override
+    public String getCountdownFormat() {
+        return countdownFormat;
+    }
+
+    @Override
+    public void setCountdownFormat(String s) {
+        if (s != null) {
+            if (s.equals("-")) s = "";
+            else if (s.equals("*")) s = null;
+        }
+        if (s == null) s = "%RED%Teleport countdown started...";
+        countdownFormat = s;
+        dirty = true;
+    }
+
+    @Override
+    public String getCountdownIntervalFormat() {
+        return countdownIntervalFormat;
+    }
+
+    @Override
+    public void setCountdownIntervalFormat(String s) {
+        if (s != null) {
+            if (s.equals("-")) s = "";
+            else if (s.equals("*")) s = null;
+        }
+        if (s == null) s = "%RED%Teleport in %time% seconds...";
+        countdownIntervalFormat = s;
+        dirty = true;
+    }
+
+    @Override
+    public String getCountdownCancelFormat() {
+        return countdownCancelFormat;
+    }
+
+    @Override
+    public void setCountdownCancelFormat(String s) {
+        if (s != null) {
+            if (s.equals("-")) s = "";
+            else if (s.equals("*")) s = null;
+        }
+        if (s == null) s = "%RED%Teleport canceled";
+        countdownCancelFormat = s;
         dirty = true;
     }
 

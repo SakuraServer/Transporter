@@ -313,7 +313,13 @@ public final class Gates {
         triggerMap.removeGate(gate);
     }
 
-
+    public static void dumpMaps() {
+        Utils.debug("portalMap=%s", portalMap);
+        Utils.debug("protectionMap=%s", protectionMap);
+        Utils.debug("screenMap=%s", screenMap);
+        Utils.debug("switchMap=%s", switchMap);
+        Utils.debug("triggerMap=%s", triggerMap);
+    }
 
 
     public static void setSelectedGate(Player player, LocalGateImpl gate) {

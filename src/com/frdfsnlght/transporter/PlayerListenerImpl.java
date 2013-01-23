@@ -284,9 +284,17 @@ public final class PlayerListenerImpl implements Listener {
         LocalGateImpl fromGate = Gates.findGateForPortal(event.getTo());
         if (fromGate == null) {
             ReservationImpl.removeGateLock(player);
+            ReservationImpl.removeCountdown(player);
             return;
         }
         if (ReservationImpl.isGateLocked(player)) return;
+
+        if (ReservationImpl.hasCountdown(player)) return;
+        if (fromGate.getCountdown() > 0) {
+            Countdown countdown = new Countdown(player, fromGate);
+            countdown.start();
+            return;
+        }
 
         Context ctx = new Context(player);
         try {

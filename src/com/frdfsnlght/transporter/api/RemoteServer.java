@@ -351,20 +351,6 @@ public interface RemoteServer {
      */
     public void setMExecTarget(boolean b);
 
-    /**
-     * Returns the value of the "bungeeServer" option.
-     *
-     * @return the option value
-     */
-    public String getBungeeServer();
-
-    /**
-     * Sets the "bungeeServer" option.
-     *
-     * @param s the option value
-     */
-    public void setBungeeServer(String s);
-
     /* End Options */
 
 }

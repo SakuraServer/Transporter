@@ -15,9 +15,9 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.SpawnDirection;
 import java.util.HashMap;
 import java.util.Map;
-import com.frdfsnlght.transporter.api.SpawnDirection;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 

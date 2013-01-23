@@ -23,6 +23,7 @@ import com.frdfsnlght.transporter.api.event.EntityArriveEvent;
 import com.frdfsnlght.transporter.api.event.EntityDepartEvent;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -49,6 +50,7 @@ import org.bukkit.util.Vector;
 public final class ReservationImpl implements Reservation {
 
     private static final Map<Integer,Long> gateLocks = new HashMap<Integer,Long>();
+    private static final Map<Integer,Countdown> countdowns = new HashMap<Integer,Countdown>();
 
     private static long nextId = 1;
     private static final Map<Long,ReservationImpl> reservations = new HashMap<Long,ReservationImpl>();
@@ -102,6 +104,48 @@ public final class ReservationImpl implements Reservation {
         if (entity == null) return;
         gateLocks.put(entity.getEntityId(), System.currentTimeMillis() + Config.getGateLockExpiration());
         Utils.debug("added gate lock for entity %d", entity.getEntityId());
+    }
+
+    public static void removeCountdown(Entity entity) {
+        if (entity == null) return;
+        Countdown countdown = countdowns.get(entity.getEntityId());
+        if (countdown == null) return;
+        countdowns.remove(entity.getEntityId());
+        countdown.cancel();
+        Utils.debug("removed countdown for entity %d", entity.getEntityId());
+    }
+
+    public static void removeCountdown(Countdown countdown) {
+        if (countdown == null) return;
+        for (Iterator<Integer> i = countdowns.keySet().iterator(); i.hasNext(); ) {
+            int id = i.next();
+            if (countdowns.get(id) == countdown) {
+                i.remove();
+                Utils.debug("removed countdown for entity %d", countdown.getPlayer().getEntityId());
+            }
+        }
+    }
+
+    public static void removeCountdowns(LocalGateImpl gate) {
+        for (Iterator<Integer> i = countdowns.keySet().iterator(); i.hasNext(); ) {
+            int id = i.next();
+            Countdown countdown = countdowns.get(id);
+            if (countdown.getGate() == gate) {
+                i.remove();
+                Utils.debug("removed countdown for entity %d", countdown.getPlayer().getEntityId());
+            }
+        }
+    }
+
+    public static void addCountdown(Countdown countdown) {
+        if (countdown == null) return;
+        countdowns.put(countdown.getPlayer().getEntityId(), countdown);
+        Utils.debug("added countdown for entity %d", countdown.getPlayer().getEntityId());
+    }
+
+    public static boolean hasCountdown(Entity entity) {
+        if (entity == null) return false;
+        return countdowns.containsKey(entity.getEntityId());
     }
 
     private long localId = nextId++;
@@ -612,7 +656,7 @@ public final class ReservationImpl implements Reservation {
                     Utils.schedulePlayerKick(player, kickMessage);
                     break;
                 case Bungee:
-                    Utils.sendPluginMessage(player, "RubberBand", toServer.getBungeeServer().getBytes());
+                    Utils.sendPluginMessage(player, "RubberBand", toServer.getRemoteBungeeServer().getBytes());
                     break;
             }
         }

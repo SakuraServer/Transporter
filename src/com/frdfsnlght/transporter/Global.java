@@ -29,6 +29,7 @@ import com.frdfsnlght.transporter.command.ReloadCommand;
 import com.frdfsnlght.transporter.command.SaveCommand;
 import com.frdfsnlght.transporter.command.ServerCommand;
 import com.frdfsnlght.transporter.command.WorldCommand;
+import com.frdfsnlght.transporter.compatibility.Compatibility;
 import com.frdfsnlght.transporter.test.TestCommand;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,8 @@ public final class Global {
     public static String pluginName;
     public static String pluginVersion;
     public static boolean started = false;
-
+    public static Compatibility compatibility;
+    
     public static final List<CommandProcessor> commands = new ArrayList<CommandProcessor>();
 
     static {

@@ -218,7 +218,7 @@ public class GateCommand extends TrpCommandProcessor {
 
         if ("destroy".startsWith(subCmd)) {
             boolean unbuild = false;
-            if ("unbuild".startsWith(args.get(args.size() - 1).toLowerCase())) {
+            if ((args.size() > 0) && "unbuild".startsWith(args.get(args.size() - 1).toLowerCase())) {
                 unbuild = true;
                 args.remove(args.size() - 1);
             }

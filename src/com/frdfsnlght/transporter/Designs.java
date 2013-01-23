@@ -40,7 +40,7 @@ public final class Designs {
                 if (! design.isEnabled()) continue;
                 try {
                     add(design);
-                    ctx.sendLog("loaded design '%s'", design.getName());
+                    ctx.sendLog("loaded design '%s' %s", design.getName(), (design.getAttribution() == null) ? "" : design.getAttribution());
                 } catch (DesignException de) {
                     ctx.warnLog("unable to load design '%s': %s", design.getName(), de.getMessage());
                 }
@@ -107,6 +107,10 @@ public final class Designs {
     static void setBuildUndo(String playerName, List<SavedBlock> savedBlocks) {
         if (playerName == null) return;
         buildUndos.put(playerName, savedBlocks);
+    }
+
+    public static void clearBuildUndo(String playerName) {
+        buildUndos.remove(playerName);
     }
 
 }

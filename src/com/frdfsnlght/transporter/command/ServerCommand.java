@@ -21,6 +21,7 @@ import com.frdfsnlght.transporter.Realm;
 import com.frdfsnlght.transporter.Server;
 import com.frdfsnlght.transporter.Servers;
 import com.frdfsnlght.transporter.api.TransporterException;
+import com.frdfsnlght.transporter.net.Network;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -117,7 +118,10 @@ public class ServerCommand extends TrpCommandProcessor {
                                     "-" : (server.getRemoteRealm() + ((Realm.isStarted() && Realm.getName().equals(server.getRemoteRealm())) ? " (realm-mate)" : "")));
                         ctx.send("    remoteCluster:        %s",
                                 (server.getRemoteCluster() == null) ?
-                                    "-" : server.getRemoteCluster());
+                                    "-" : (server.getRemoteCluster() + (Network.getClusterName().equals(server.getRemoteCluster()) ? " (cluster-mate)" : "")));
+                        ctx.send("    remoteBungeeServer:   %s",
+                                (server.getRemoteBungeeServer() == null) ?
+                                    "-" : server.getRemoteBungeeServer());
                     }
                 }
             }

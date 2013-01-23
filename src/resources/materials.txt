@@ -12,6 +12,8 @@ Materials with an Id above 255 are "items" can only be used in gate
 ban/allow/replace lists. The number after the attributes, if any,
 indicates the maximum durability.
 
+The material names are taken from http://jd.bukkit.org/doxygen/d6/d0e/enumorg_1_1bukkit_1_1Material.html
+
 AIR                     0
 STONE                   1
 GRASS                   2
@@ -126,7 +128,29 @@ ENDER_PORTAL            119
 ENDER_PORTAL_FRAME      120
 ENDER_STONE             121
 DRAGON_EGG              122
-
+REDSTONE_LAMP_OFF       123
+REDSTONE_LAMP_ON        124
+WOOD_DOUBLE_STEP        125
+WOOD_STEP               126
+COCOA                   127
+SANDSTONE_STAIRS        128
+EMERALD_ORE             129
+ENDER_CHEST             130
+TRIPWIRE_HOOK           131
+TRIPWIRE                132
+EMERALD_BLOCK           133
+SPRUCE_WOOD_STAIRS      134
+BIRCH_WOOD_STAIRS       135
+JUNGLE_WOOD_STAIRS      136
+COMMAND                 137
+BEACON                  138
+COBBLE_WALL             139
+FLOWER_POT              140
+CARROT                  141
+POTATO                  142
+WOOD_BUTTON             143
+SKULL                   144
+ANVIL                   145
 
 Items are below here. Numbers after the Ids are maximum durabilities. These
 can be used when specifying banned, allowed, and replace items for gates.

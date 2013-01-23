@@ -72,6 +72,8 @@ public final class Config {
         OPTIONS.add("httpProxyPort");
         OPTIONS.add("httpProxyUser");
         OPTIONS.add("httpProxyPassword");
+        OPTIONS.add("checkVersion");
+        OPTIONS.add("updateMetrics");
 
         options = new Options(Config.class, OPTIONS, "trp", new OptionsListener() {
             @Override
@@ -146,6 +148,7 @@ public final class Config {
     }
 
     public static void save(Context ctx) {
+        if (config == null) return;
         Network.onConfigSave();
         Realm.onConfigSave();
         Worlds.onConfigSave();
@@ -188,6 +191,7 @@ public final class Config {
     }
 
     public static void setPropertyDirect(String path, Object v) {
+        if (config == null) return;
         if (v == null)
             config.remove(path);
         else
@@ -551,6 +555,21 @@ public final class Config {
         setPropertyDirect("global.httpProxy.password", s);
     }
 
+    public static boolean getCheckVersion() {
+        return config.getBoolean("global.checkVersion", true);
+    }
+
+    public static void setCheckVersion(boolean b) {
+        setPropertyDirect("global.checkVersion", b);
+    }
+
+    public static boolean getUpdateMetrics() {
+        return config.getBoolean("global.updateMetrics", true);
+    }
+
+    public static void setUpdateMetrics(boolean b) {
+        setPropertyDirect("global.updateMetrics", b);
+    }
 
 
 

@@ -335,14 +335,20 @@ public final class TypeMap extends HashMap<String,Object> implements Cloneable {
         if (file == null)
             throw new IllegalStateException("no file defined");
         clear();
+        InputStream input = null;
         try {
-            InputStream input = new FileInputStream(file);
+            input = new FileInputStream(file);
             Yaml yaml = new Yaml();
             Object o = yaml.load(input);
             if (! (o instanceof Map)) return;
             for (Object k : ((Map)o).keySet())
                 set(k.toString(), ((Map)o).get(k));
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (input != null) input.close();
+            } catch (IOException e) {}
+        }
     }
 
     public void save(File file) {

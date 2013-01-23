@@ -98,7 +98,7 @@ public final class LocalBlockGateImpl extends LocalGateImpl implements LocalBloc
     }
 
     // creation from design
-    public LocalBlockGateImpl(World world, String gateName, String playerName, BlockFace direction, Design design, List<GateBlock> blocks) throws GateException {
+    public LocalBlockGateImpl(World world, String gateName, String playerName, BlockFace direction, Design design, TransformedDesign tDesign) throws GateException {
         super(world, gateName, playerName, direction);
         options = new Options(this, OPTIONS, "trp.gate", this);
 
@@ -138,6 +138,11 @@ public final class LocalBlockGateImpl extends LocalGateImpl implements LocalBloc
         markerFormat = design.getMarkerFormat();
         hidden = design.getHidden();
         linkAddDistance = design.getLinkAddDistance();
+        countdown = design.getCountdown();
+        countdownInterval = design.getCountdownInterval();
+        countdownFormat = design.getCountdownFormat();
+        countdownIntervalFormat = design.getCountdownIntervalFormat();
+        countdownCancelFormat = design.getCountdownCancelFormat();
 
         linkLocalCost = design.getLinkLocalCost();
         linkWorldCost = design.getLinkWorldCost();
@@ -153,7 +158,7 @@ public final class LocalBlockGateImpl extends LocalGateImpl implements LocalBloc
         allowedItems.addAll(design.getAllowedItems());
         replaceItems.putAll(design.getReplaceItems());
 
-        this.blocks = blocks;
+        this.blocks = tDesign.getBlocks();
 
         calculateCenter();
         validate();

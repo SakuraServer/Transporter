@@ -13,68 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.frdfsnlght.transporter;
+package com.frdfsnlght.transporter.compatibility;
 
+import com.frdfsnlght.transporter.Global;
+import com.frdfsnlght.transporter.TypeMap;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import net.minecraft.server.NBTBase;
-import net.minecraft.server.NBTTagByte;
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagDouble;
-import net.minecraft.server.NBTTagFloat;
-import net.minecraft.server.NBTTagInt;
-import net.minecraft.server.NBTTagList;
-import net.minecraft.server.NBTTagLong;
-import net.minecraft.server.NBTTagShort;
-import net.minecraft.server.NBTTagString;
+import net.minecraft.server.v1_4_6.NBTBase;
+import net.minecraft.server.v1_4_6.NBTTagByte;
+import net.minecraft.server.v1_4_6.NBTTagCompound;
+import net.minecraft.server.v1_4_6.NBTTagDouble;
+import net.minecraft.server.v1_4_6.NBTTagFloat;
+import net.minecraft.server.v1_4_6.NBTTagInt;
+import net.minecraft.server.v1_4_6.NBTTagList;
+import net.minecraft.server.v1_4_6.NBTTagLong;
+import net.minecraft.server.v1_4_6.NBTTagShort;
+import net.minecraft.server.v1_4_6.NBTTagString;
+import net.minecraft.server.v1_4_6.Packet201PlayerInfo;
+import net.minecraft.server.v1_4_6.PlayerConnection;
+import org.bukkit.craftbukkit.v1_4_6.CraftServer;
+import org.bukkit.craftbukkit.v1_4_6.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_4_6.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  *
  * @author frdfsnlght <frdfsnlght@gmail.com>
  */
-public final class NBT {
+public class V1_4_6Class extends Compatibility {
 
-    private static Method NBTTCCollection = null;
-
-    private static Method getCollectionMethod() {
-        if (NBTTCCollection != null) return NBTTCCollection;
-        Utils.debug("looking for NBTTagCompound collection method...");
-        for (Method method : NBTTagCompound.class.getMethods()) {
-            if (method.getParameterTypes().length != 0) {
-                Utils.debug("rejected NBTTagCompound.%s: too many parameters", method.getName());
-                continue;
-            }
-            if (method.getReturnType() != Collection.class) {
-                Utils.debug("rejected NBTTagCompound.%s: wrong return type", method.getName());
-                continue;
-            }
-            if (NBTTCCollection == null) {
-                NBTTCCollection = method;
-                Utils.debug("found NBTTagCompound.%s", method.getName());
-            } else
-                Utils.warning("found additional NBTTagCompound.%s", method.getName());
-        }
-        if (NBTTCCollection == null)
-            throw new UnsupportedOperationException("Unable to find collection method in NBTTagCompound!!!");
-        return NBTTCCollection;
+    @Override
+    public void sendAllPacket201PlayerInfo(String playerName, boolean b, int i) {
+        ((CraftServer)Global.plugin.getServer()).getHandle().sendAll(new Packet201PlayerInfo(playerName, b, i));
     }
 
-    public static TypeMap encodeNBT(NBTTagCompound tag) {
-        Method method = getCollectionMethod();
+    @Override
+    public void sendPlayerPacket201PlayerInfo(Player player, String playerName, boolean b, int i) {
+        PlayerConnection pc = ((CraftPlayer)player).getHandle().playerConnection;
+        if (pc != null)
+            pc.sendPacket(new Packet201PlayerInfo(playerName, true, 9999));
+    }
 
+    @Override
+    public ItemStack createItemStack(int type, int amount, short durability) {
+        return new ItemStack(type, amount, durability);
+    }
+
+    @Override
+    public TypeMap getItemStackTag(ItemStack stack) {
+        net.minecraft.server.v1_4_6.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        if (nmsStack == null) return null;
+        return (TypeMap)encodeNBT(nmsStack.getTag());
+    }
+
+    @Override
+    public ItemStack setItemStackTag(ItemStack stack, TypeMap tag) {
+        net.minecraft.server.v1_4_6.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        if (nmsStack == null) return stack;
+        nmsStack.setTag(decodeNBT(tag));
+        return CraftItemStack.asCraftMirror(nmsStack);
+    }
+
+
+
+
+    private TypeMap encodeNBT(NBTTagCompound tag) {
         if (tag == null) return null;
 
         TypeMap map = new TypeMap();
-        Collection col = null;
-        try {
-            col = (Collection)method.invoke(tag, new Object[] {});
-            Utils.debug("successfully called NBTTagCompound.%s", method.getName());
-        } catch (IllegalAccessException e) {
-        } catch (InvocationTargetException e) {}
+        Collection col = tag.c();
 
         for (Object object : col) {
             if (object instanceof NBTBase) {
@@ -88,17 +98,7 @@ public final class NBT {
         return map;
     }
 
-    public static NBTTagCompound decodeNBT(TypeMap map) {
-        if (map == null) return null;
-		NBTTagCompound tag = new NBTTagCompound();
-        for (String key : map.getKeys()) {
-            Object value = map.get(key);
-            tag.set(key, decodeNBTValue(value));
-        }
-        return tag;
-    }
-
-    private static Object encodeNBTValue(NBTBase tag) {
+    private Object encodeNBTValue(NBTBase tag) {
         if (tag instanceof NBTTagCompound)
             return encodeNBT((NBTTagCompound)tag);
         if (tag instanceof NBTTagString)
@@ -159,7 +159,17 @@ public final class NBT {
         return null;
     }
 
-    private static NBTBase decodeNBTValue(Object value) {
+    private NBTTagCompound decodeNBT(TypeMap map) {
+        if (map == null) return null;
+		NBTTagCompound tag = new NBTTagCompound();
+        for (String key : map.getKeys()) {
+            Object value = map.get(key);
+            tag.set(key, decodeNBTValue(value));
+        }
+        return tag;
+    }
+
+    private NBTBase decodeNBTValue(Object value) {
         if (value instanceof String)
 			return new NBTTagString(null, (String)value);
 

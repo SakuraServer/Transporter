@@ -146,11 +146,23 @@ public enum SpawnDirection {
                 return playerYaw;
             case FORWARD:
             case REVERSE:
+
+//                Utils.debug("calculate yaw for %s", this);
+//                Utils.debug("playerYaw=%s", playerYaw);
+//                Utils.debug("fromGateDirection=%s", fromGateDirection);
+//                Utils.debug("toGateDirection=%s", toGateDirection);
+
                 float yawDiff = playerYaw - Utils.directionToYaw(fromGateDirection);
                 float newYaw = yawDiff + Utils.directionToYaw(toGateDirection);
                 newYaw += (this == FORWARD) ? 0 : 180;
+
+//                Utils.debug("yawDiff=%s", yawDiff);
+
                 while (newYaw > 180) newYaw -= 360;
                 while (newYaw <= -180) newYaw += 360;
+
+//                Utils.debug("newYaw=%s", newYaw);
+
                 return newYaw;
             default:
                 return Utils.directionToYaw(toFacing());

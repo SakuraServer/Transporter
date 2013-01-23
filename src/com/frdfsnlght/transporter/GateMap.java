@@ -227,6 +227,9 @@ public final class GateMap {
         }
 
         private void recalculate() {
+//            Utils.debug("!!!! recalculate worldmap !!!!");
+//            Utils.debug(toString());
+
             if (root != null) root.destroy();
             if ((volumes == null) || volumes.isEmpty()) return;
             root = new VolumeNode(null, volumes);

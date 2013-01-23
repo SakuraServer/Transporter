@@ -16,6 +16,7 @@
 package com.frdfsnlght.transporter.command;
 
 import com.frdfsnlght.transporter.Context;
+import com.frdfsnlght.transporter.Gates;
 import com.frdfsnlght.transporter.PlayerListenerImpl;
 import com.frdfsnlght.transporter.Utils;
 import com.frdfsnlght.transporter.api.TransporterException;
@@ -80,6 +81,11 @@ public class DebugCommand extends TrpCommandProcessor {
                 PlayerListenerImpl.testPlayer = null;
                 ctx.send("player interaction debug is off");
             }
+            return;
+        }
+
+        if ("gatemaps".startsWith(subCmd)) {
+            Gates.dumpMaps();
             return;
         }
 

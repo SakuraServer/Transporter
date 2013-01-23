@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -58,40 +57,25 @@ public final class Inventory {
         MaterialData data = stack.getData();
         if (data != null)
             s.put("data", (int)data.getData());
-        net.minecraft.server.ItemStack mcStack = (net.minecraft.server.ItemStack)((CraftItemStack)stack).getHandle();
-        if (mcStack != null)
-            s.put("tag", NBT.encodeNBT(mcStack.getTag()));
-        /*
-         * Enchantments are included in the tags above.
-        TypeMap ench = new TypeMap();
-        for (Enchantment e : stack.getEnchantments().keySet())
-            ench.put(e.getName(), stack.getEnchantments().get(e));
-        s.put("enchantments", ench);
-        */
+        TypeMap tag = Global.compatibility.getItemStackTag(stack);
+        if (tag != null)
+            s.put("tag", tag);
         return s;
     }
 
     public static ItemStack decodeItemStack(TypeMap s) {
         if (s == null) return null;
-        CraftItemStack stack = new CraftItemStack(
-            s.getInt("type"),
-            s.getInt("amount"),
-            (short)s.getInt("durability"));
+        ItemStack stack = Global.compatibility.createItemStack(
+                s.getInt("type"),
+                s.getInt("amount"),
+                (short)s.getInt("durability"));
         if (s.containsKey("data")) {
             MaterialData data = stack.getData();
             if (data != null)
                 data.setData((byte)s.getInt("data"));
         }
-        net.minecraft.server.ItemStack mcStack = (net.minecraft.server.ItemStack)((CraftItemStack)stack).getHandle();
-        if (mcStack != null)
-            mcStack.setTag(NBT.decodeNBT(s.getMap("tag")));
-        /*
-         * Enchantments are included in the tags above.
-        TypeMap ench = s.getMap("enchantments");
-        if (ench != null)
-            for (String name : ench.keySet())
-                stack.addEnchantment(Enchantment.getByName(name), ench.getInt(name));
-        */
+        if (s.containsKey("tag"))
+            stack = Global.compatibility.setItemStackTag(stack, s.getMap("tag"));
         return stack;
     }
 
@@ -229,6 +213,12 @@ public final class Inventory {
         for (Material material : blocks.keySet()) {
             int needed = blocks.get(material);
             if (needed <= 0) continue;
+            switch (material) {
+                case WALL_SIGN:
+                case SIGN_POST:
+                    material = Material.SIGN;
+                    break;
+            }
             HashMap<Integer,? extends ItemStack> slots = inv.all(material);
             for (int slotNum : slots.keySet()) {
                 ItemStack stack = slots.get(slotNum);
@@ -246,6 +236,12 @@ public final class Inventory {
         for (Material material : blocks.keySet()) {
             int needed = blocks.get(material);
             if (needed <= 0) continue;
+            switch (material) {
+                case WALL_SIGN:
+                case SIGN_POST:
+                    material = Material.SIGN;
+                    break;
+            }
             HashMap<Integer,? extends ItemStack> slots = inv.all(material);
             for (int slotNum : slots.keySet()) {
                 ItemStack stack = slots.get(slotNum);

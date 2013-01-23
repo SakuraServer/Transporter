@@ -219,8 +219,12 @@ public final class LocalAreaGateImpl extends LocalGateImpl implements LocalAreaG
                     }
                 }
             }
-            if (goodLocation)
-                return new Location(world, (double)x + 0.5, y, (double)z + 0.5);
+            if (goodLocation) {
+                Location toLocation = new Location(world, (double)x + 0.5, y, (double)z + 0.5);
+                toLocation.setYaw(spawnDirection.calculateYaw(fromLocation.getYaw(), fromDirection, getDirection()));
+                toLocation.setPitch(fromLocation.getPitch());
+                return toLocation;
+            }
         }
         Utils.warning("Unable to find a suitable spawnlocation for gate '%s'!", getLocalName());
         return p1;

@@ -15,7 +15,6 @@
  */
 package com.frdfsnlght.transporter;
 
-import java.util.List;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 
@@ -26,13 +25,13 @@ import org.bukkit.block.BlockFace;
 public final class DesignMatch {
 
     public Design design;
-    public List<GateBlock> gateBlocks;
+    public TransformedDesign tDesign;
     public World world;
     public BlockFace direction;
 
-    public DesignMatch(Design design, List<GateBlock> gateBlocks, World world, BlockFace direction) {
+    public DesignMatch(Design design, TransformedDesign tDesign, World world, BlockFace direction) {
         this.design = design;
-        this.gateBlocks = gateBlocks;
+        this.tDesign = tDesign;
         this.world = world;
         this.direction = direction;
     }

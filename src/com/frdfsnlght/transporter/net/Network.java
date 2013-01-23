@@ -72,12 +72,14 @@ public final class Network {
         OPTIONS.add("listenAddress");
         OPTIONS.add("key");
         OPTIONS.add("suppressConnectionAttempts");
+        OPTIONS.add("bungeeServer");
 
         RESTART_OPTIONS.add("readBufferSize");
         RESTART_OPTIONS.add("selectInterval");
         RESTART_OPTIONS.add("clusterName");
         RESTART_OPTIONS.add("listenAddress");
         RESTART_OPTIONS.add("key");
+
         options = new Options(Network.class, OPTIONS, "trp.network", new OptionsListener() {
             @Override
             public void onOptionSet(Context ctx, String name, String value) {
@@ -317,6 +319,15 @@ public final class Network {
     public static void setClusterName(String s) {
         if ((s != null) && (s.equals("-") || s.equals("*"))) s = null;
         Config.setPropertyDirect("network.clusterName", s);
+    }
+
+    public static String getBungeeServer() {
+        return Config.getStringDirect("network.bungeeServer", null);
+    }
+
+    public static void setBungeeServer(String s) {
+        if ((s != null) && (s.equals("-") || s.equals("*"))) s = null;
+        Config.setPropertyDirect("network.bungeeServer", s);
     }
 
     public static int getReconnectInterval() {

@@ -19,6 +19,7 @@ import com.frdfsnlght.transporter.api.API;
 import com.frdfsnlght.transporter.api.TransporterException;
 import com.frdfsnlght.transporter.command.CommandException;
 import com.frdfsnlght.transporter.command.CommandProcessor;
+import com.frdfsnlght.transporter.compatibility.Compatibility;
 import com.frdfsnlght.transporter.net.Network;
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,12 @@ public class Transporter extends JavaPlugin {
         Global.pluginName = pdf.getName();
         Global.pluginVersion = pdf.getVersion();
         Global.started = false;
+
+        if (! Compatibility.setup()) {
+            Utils.severe("unable to find compatible server version, plugin is disabled");
+            setEnabled(false);
+            return;
+        }
 
         final Context ctx = new Context();
 
@@ -97,7 +104,8 @@ public class Transporter extends JavaPlugin {
 
         Config.load(ctx);
 
-        Utils.checkVersion();
+        if (Config.getCheckVersion())
+            Utils.checkVersion();
 
         serverListener = new ServerListenerImpl();
         blockListener = new BlockListenerImpl();
@@ -137,12 +145,13 @@ public class Transporter extends JavaPlugin {
 
         Global.started = true;
 
-        try {
-            Metrics metrics = new Metrics(this);
-            metrics.start();
-        } catch (IOException e) {
-            ctx.warn("unable to start metrics: %s", e.getMessage());
-        }
+        if (Config.getUpdateMetrics())
+            try {
+                Metrics metrics = new Metrics(this);
+                metrics.start();
+            } catch (IOException e) {
+                ctx.warn("unable to start metrics: %s", e.getMessage());
+            }
 
         ctx.sendLog("ready on server '%s'", getServer().getServerName());
 
