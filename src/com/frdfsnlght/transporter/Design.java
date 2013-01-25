@@ -739,7 +739,7 @@ public class Design {
 //                translate(location, insertBlock.getZ(), -insertBlock.getY(), -insertBlock.getX());
                 break;
             case EAST:
-                translate(location, insertBlock.getZ(), -insertBlock.getY(), insertBlock.getX());
+                translate(location, insertBlock.getZ(), -insertBlock.getY(), -insertBlock.getX());
 //                translate(location, insertBlock.getX(), -insertBlock.getY(), insertBlock.getZ());
                 break;
             case SOUTH:
@@ -747,7 +747,7 @@ public class Design {
 //                translate(location, -insertBlock.getZ(), -insertBlock.getY(), insertBlock.getX());
                 break;
             case WEST:
-                translate(location, -insertBlock.getZ(), -insertBlock.getY(), -insertBlock.getX());
+                translate(location, -insertBlock.getZ(), -insertBlock.getY(), insertBlock.getX());
 //                translate(location, -insertBlock.getX(), -insertBlock.getY(), -insertBlock.getZ());
                 break;
         }
@@ -820,7 +820,7 @@ public class Design {
 //                    translate(location, screenBlock.getZ(), -screenBlock.getY(), -screenBlock.getX());
                     break;
                 case EAST:
-                    translate(location, screenBlock.getZ(), -screenBlock.getY(), screenBlock.getX());
+                    translate(location, screenBlock.getZ(), -screenBlock.getY(), -screenBlock.getX());
 //                    translate(location, screenBlock.getX(), -screenBlock.getY(), screenBlock.getZ());
                     break;
                 case SOUTH:
@@ -828,7 +828,7 @@ public class Design {
 //                    translate(location, -screenBlock.getZ(), -screenBlock.getY(), screenBlock.getX());
                     break;
                 case WEST:
-                    translate(location, -screenBlock.getZ(), -screenBlock.getY(), -screenBlock.getX());
+                    translate(location, -screenBlock.getZ(), -screenBlock.getY(), screenBlock.getX());
 //                    translate(location, -screenBlock.getX(), -screenBlock.getY(), -screenBlock.getZ());
                     break;
                 default:

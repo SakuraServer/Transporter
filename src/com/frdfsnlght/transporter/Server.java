@@ -88,6 +88,7 @@ public final class Server implements OptionsListener, RemoteServer {
         OPTIONS.add("announcePlayers");
         OPTIONS.add("playerListFormat");
         OPTIONS.add("mExecTarget");
+        OPTIONS.add("allowRemoteCommands");
 
         MESSAGE_HANDLERS.put("nop", null);
         MESSAGE_HANDLERS.put("error", null);
@@ -189,6 +190,7 @@ public final class Server implements OptionsListener, RemoteServer {
 
     private String playerListFormat = null;
     private boolean mExecTarget = true;
+    private boolean allowRemoteCommands = false;
 
     private Connection connection = null;
     private boolean allowReconnect = true;
@@ -245,6 +247,7 @@ public final class Server implements OptionsListener, RemoteServer {
             setAnnouncePlayers(map.getBoolean("announcePlayers", false));
             setPlayerListFormat(map.getString("playerListFormat", "%italic%%player%"));
             setMExecTarget(map.getBoolean("mExecTarget", true));
+            setAllowRemoteCommands(map.getBoolean("allowRemoteCommands", false));
         } catch (IllegalArgumentException e) {
             throw new ServerException(e.getMessage());
         }
@@ -612,6 +615,16 @@ public final class Server implements OptionsListener, RemoteServer {
         mExecTarget = b;
     }
 
+    @Override
+    public boolean getAllowRemoteCommands() {
+        return allowRemoteCommands;
+    }
+
+    @Override
+    public void setAllowRemoteCommands(boolean b) {
+        allowRemoteCommands = b;
+    }
+
     public void getOptions(Context ctx, String name) throws OptionsException, PermissionsException {
         options.getOptions(ctx, name);
     }
@@ -779,6 +792,7 @@ public final class Server implements OptionsListener, RemoteServer {
         node.put("announcePlayers", announcePlayers);
         node.put("playerListFormat", playerListFormat);
         node.put("mExecTarget", mExecTarget);
+        node.put("allowRemoteCommands", allowRemoteCommands);
         return node;
     }
 
@@ -1813,6 +1827,8 @@ public final class Server implements OptionsListener, RemoteServer {
         TypeMap out = createMessage("apiResult");
         out.put("requestId", rid);
         try {
+            if ("server".equals(target) && "dispatchCommand".equals(method) && (! getAllowRemoteCommands()))
+                throw new Exception("Remote commands are disabled.");
             APIBackend.invoke(target, method, args, out);
         } catch (Throwable t) {
             out.put("failure", t.getMessage());

@@ -52,7 +52,6 @@ public class Transporter extends JavaPlugin {
     @Override
     public void onEnable() {
         Global.mainThread = Thread.currentThread();
-        Global.enabled = true;
         PluginDescriptionFile pdf = getDescription();
         Global.plugin = this;
         Global.pluginName = pdf.getName();
@@ -64,6 +63,8 @@ public class Transporter extends JavaPlugin {
             setEnabled(false);
             return;
         }
+
+        Global.enabled = true;
 
         final Context ctx = new Context();
 
@@ -159,6 +160,7 @@ public class Transporter extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (! Global.enabled) return;
         Global.enabled = false;
         Context ctx = new Context();
         Realm.stop(ctx);

@@ -20,16 +20,7 @@ Testing:
 Wiki Updates:
 
 Changelog:
-* Fixed buggy gate building/creating.
-* Fixed bug with the "gate destroy" command.
-* Fixed bug with closing gates via redstone.
-* Fixed bug with spawn direction for area gates.
-* Fixed bug where gate files weren't closed after loading, so destroying a gate didn't delete the file.
-* Updated materials.txt.
-* Made design detection during gate creation a bit faster.
-* Added global options "checkVersion" and "updateMetrics" for turning off plugin version checking and metrics reporting to http://mcstats.org/ at plugin load time.
-* Added new design option "attribution" to allow crediting a design during load.
-* Added additional error checking to designs during load.
-* Added new "Plaza" design. Thanks go to Melekaiah for the hard work. I just tweaked some things.
-
-The new Plaza design is quite large (41x41x15). It might choke your server for second or two when building or creating it. I recommend building it on a large flat area, or in the sky.
+* Updated for CB 1.4.7-R0.1 and 1.4.7 client patch.
+* Fixed East/West gate building (this time for real?).
+* Added server option "allowRemoteCommands" which defaults to false.
+* Half fixed minecart/boat teleportation with player passenger (teleport happens, but vehicle has no velocity?) Caused by this: https://github.com/Bukkit/CraftBukkit/commit/c6ac44a2b75f099a99115aaa94ed7552c9a7cec6

@@ -351,6 +351,20 @@ public interface RemoteServer {
      */
     public void setMExecTarget(boolean b);
 
+    /**
+     * Returns the value of the "allowRemoteCommands" option.
+     *
+     * @return the option value
+     */
+    public boolean getAllowRemoteCommands();
+
+    /**
+     * Sets the "allowRemoteCommands" option.
+     *
+     * @param s the option value
+     */
+    public void setAllowRemoteCommands(boolean b);
+
     /* End Options */
 
 }

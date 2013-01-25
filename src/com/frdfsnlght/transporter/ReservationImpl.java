@@ -619,11 +619,15 @@ public final class ReservationImpl implements Reservation {
             addGateLock(player);
         if ((player != null) && (playerPin != null))
             Pins.add(player, playerPin);
-        if (toLocation != null)
-            if (! entity.teleport(toLocation)) {
-                rollbackTraveler();
-                throw new ReservationException("teleport %s to %s failed", getTraveler(), getDestination());
+        if (toLocation != null) {
+            // NEW: Bukkit no longer teleports vehicles with passengers
+            if ((entity == player) || (player == null)) {
+                if (! entity.teleport(toLocation)) {
+                    rollbackTraveler();
+                    throw new ReservationException("teleport %s to %s failed", getTraveler(), getDestination());
+                }
             }
+        }
         commitTraveler();
 
         Utils.debug("%s arrived at %s", getTraveler(), getDestination());
@@ -964,7 +968,7 @@ public final class ReservationImpl implements Reservation {
     }
 
     private void prepareTraveler() throws ReservationException {
-        Utils.debug("prepareTraveler %s", entityType);
+        Utils.debug("prepareTraveler %s", getTraveler());
         if ((player == null) && (playerName != null)) {
             player = Global.plugin.getServer().getPlayer(playerName);
             if (player == null)
@@ -1028,6 +1032,18 @@ public final class ReservationImpl implements Reservation {
                     break;
                 default:
                     throw new ReservationException("unknown entity type '%s'", entityType);
+            }
+        } else if ((entity != player) && (player != null)) {
+            Utils.debug("spoofing vehicle/passenger teleportation");
+            switch (entityType) {
+                case MINECART:
+                    entity.remove();
+                    entity = theWorld.spawn(theLocation, Minecart.class);
+                    break;
+                case BOAT:
+                    entity.remove();
+                    entity = theWorld.spawn(theLocation, Boat.class);
+                    break;
             }
         }
         if (player != null) {
@@ -1103,10 +1119,12 @@ public final class ReservationImpl implements Reservation {
 
         switch (entityType) {
             case MINECART:
+                if ((player != null) && (entity.getPassenger() != player)) {
+                    entity.setPassenger(player);
+                    //player.setVelocity(toVelocity);
+                }
                 entity.setFireTicks(fireTicks);
                 entity.setVelocity(toVelocity);
-                if ((player != null) && (entity.getPassenger() != player))
-                    entity.setPassenger(player);
                 break;
             case POWERED_MINECART:
                 entity.setFireTicks(fireTicks);
@@ -1123,10 +1141,12 @@ public final class ReservationImpl implements Reservation {
                 }
                 break;
             case BOAT:
+                if ((player != null) && (entity.getPassenger() != player)) {
+                    entity.setPassenger(player);
+                    //player.setVelocity(toVelocity);
+                }
                 entity.setFireTicks(fireTicks);
                 entity.setVelocity(toVelocity);
-                if ((player != null) && (entity.getPassenger() != player))
-                    entity.setPassenger(player);
                 break;
         }
     }
