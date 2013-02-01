@@ -126,8 +126,9 @@ public final class Inventory {
         return true;
     }
 
-    public static boolean itemListContains(Set<String> items, String item) {
+    public static boolean itemListContains(Set<String> items, String item, boolean matchAir) {
         if (item.equals("*")) return true;
+        if ((! matchAir) && item.equals("AIR")) return false;
         String parts[] = item.split(":");
         return items.contains("*") ||
                items.contains(parts[0]) ||
@@ -174,11 +175,11 @@ public final class Inventory {
             item = newItem;
         }
         if ((allowed != null) && (! allowed.isEmpty())) {
-            if (itemListContains(allowed, item)) return stack;
+            if (itemListContains(allowed, item, true)) return stack;
             return null;
         }
         if (banned != null)
-            if (itemListContains(banned, item)) return null;
+            if (itemListContains(banned, item, false)) return null;
         return stack;
     }
 

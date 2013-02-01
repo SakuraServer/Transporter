@@ -17,6 +17,8 @@ package com.frdfsnlght.transporter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -445,14 +447,29 @@ public class Utils {
         });
     }
 
-    public static void sendPluginMessage(Player player, String channel, byte[] payload) {
+    public static void sendPlayerToBungeeServer(Player player, String serverName) {
+        sendPlayerChannelMessage(player, "BungeeCord", toUTF("Connect", serverName));
+        sendPlayerChannelMessage(player, "RubberBand", toUTF(serverName));
+    }
+
+    public static void sendPlayerChannelMessage(Player player, String channel, byte[] payload) {
         Messenger m = Global.plugin.getServer().getMessenger();
         if (! m.isOutgoingChannelRegistered(Global.plugin, channel)) {
             debug("registering for sending messages on the '%s' channel", channel);
             m.registerOutgoingPluginChannel(Global.plugin, channel);
         }
-        debug("sending %s bytes to '%s' on the '%s' channel", (payload == null) ? 0 : payload.length, player.getName(), channel);
+        debug("sending payload of %s bytes on the '%s' channel", payload.length, channel);
         player.sendPluginMessage(Global.plugin, channel, payload);
+    }
+
+    public static byte[] toUTF(String ... str) {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(b);
+        try {
+            for (String s : str)
+                out.writeUTF(s);
+        } catch (IOException e) {}
+        return b.toByteArray();
     }
 
     public static HttpURLConnection openURL(URL url) throws IOException {

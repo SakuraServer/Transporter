@@ -660,7 +660,7 @@ public final class ReservationImpl implements Reservation {
                     Utils.schedulePlayerKick(player, kickMessage);
                     break;
                 case Bungee:
-                    Utils.sendPluginMessage(player, "RubberBand", toServer.getRemoteBungeeServer().getBytes());
+                    Utils.sendPlayerToBungeeServer(player, toServer.getRemoteBungeeServer());
                     break;
             }
         }

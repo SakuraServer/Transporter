@@ -244,7 +244,7 @@ public final class Realm {
                 Utils.schedulePlayerKick(player, kickMessage);
                 break;
             case Bungee:
-                Utils.sendPluginMessage(player, "RubberBand", server.getRemoteBungeeServer().getBytes());
+                Utils.sendPlayerToBungeeServer(player, server.getRemoteBungeeServer());
                 break;
         }
         redirectedPlayers.add(player.getName());
