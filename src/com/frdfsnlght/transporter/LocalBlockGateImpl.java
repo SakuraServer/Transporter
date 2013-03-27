@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.TypeMap;
 import com.frdfsnlght.transporter.GateMap.Point;
 import com.frdfsnlght.transporter.GateMap.Volume;
 import com.frdfsnlght.transporter.api.GateException;

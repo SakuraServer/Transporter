@@ -1,12 +1,12 @@
 name: Transporter
 main: com.frdfsnlght.transporter.Transporter
-version: "8.13"
+version: "8.14"
 authors:
   - frdfsnlght
 website: http://dev.bukkit.org/server-mods/transporter/
 description: >
   Provides teleportation through gates between worlds and servers.
-softdepend: [Vault, Inquisitor, Permissions, PermissionsEx, Register, Dynmap]
+softdepend: [Vault, Inquisitor, Permissions, PermissionsEx, Register, Dynmap, TabAPI]
 commands:
   trp:
     description: Main Transporter command. See /trp help for more.

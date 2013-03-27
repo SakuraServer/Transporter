@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.TypeMap;
 import com.frdfsnlght.transporter.api.SpawnDirection;
 import java.util.HashMap;
 import java.util.Map;

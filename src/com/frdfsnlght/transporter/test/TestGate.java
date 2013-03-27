@@ -21,7 +21,7 @@ import java.util.Set;
 import com.frdfsnlght.transporter.GateMap.Point;
 import com.frdfsnlght.transporter.GateMap.Volume;
 import com.frdfsnlght.transporter.LocalGateImpl;
-import com.frdfsnlght.transporter.TypeMap;
+import com.frdfsnlght.transporter.api.TypeMap;
 import com.frdfsnlght.transporter.api.GateException;
 import com.frdfsnlght.transporter.api.GateType;
 import org.bukkit.Location;

@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.TypeMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.entity.Player;

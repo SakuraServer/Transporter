@@ -31,7 +31,7 @@ import java.util.Map;
 import com.frdfsnlght.transporter.Global;
 import com.frdfsnlght.transporter.Server;
 import com.frdfsnlght.transporter.Servers;
-import com.frdfsnlght.transporter.TypeMap;
+import com.frdfsnlght.transporter.api.TypeMap;
 import com.frdfsnlght.transporter.Utils;
 
 /**

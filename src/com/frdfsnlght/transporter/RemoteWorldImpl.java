@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.TypeMap;
 import com.frdfsnlght.transporter.api.Callback;
 import com.frdfsnlght.transporter.api.RemoteException;
 import com.frdfsnlght.transporter.api.RemoteServer;

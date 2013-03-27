@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.TypeMap;
 import com.frdfsnlght.transporter.api.GateException;
 import com.frdfsnlght.transporter.api.TransporterException;
 import java.io.File;

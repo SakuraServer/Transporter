@@ -123,6 +123,19 @@ public interface RemoteServer {
     public void dispatchCommand(Callback<Boolean> cb, CommandSender sender, String commandLine);
 
     /**
+     * Sends a request to the remote server.
+     * Requests on the remote server are handled by listening for the
+     * "RemoteRequestReceivedEvent" event.
+     * The "request" object can contain any keys/values pertinent to
+     * the listener of the event. The listener can populate it's "response"
+     * object, which will be returned to the provided callback on success.
+     *
+     * @param cb            the callback to use when the call completes
+     * @param request       the request object
+     */
+    public void sendRemoteRequest(Callback<TypeMap> cb, TypeMap request);
+
+    /**
      * Returns the configured default game mode on the remote server.
      *
      * @param cb    the callback to use when the call completes

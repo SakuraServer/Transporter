@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.Gate;
 import com.frdfsnlght.transporter.api.GateException;
 import com.frdfsnlght.transporter.api.ReservationException;
 import com.frdfsnlght.transporter.api.TransporterException;
@@ -25,13 +26,11 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -39,9 +38,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.plugin.EventExecutor;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredListener;
 
 /**
  *
@@ -148,51 +144,6 @@ public final class PlayerListenerImpl implements Listener {
             System.out.println(mask);
     }
     */
-
-
-    public PlayerListenerImpl() {
-
-        // This funkyness allows the code to work for both 1.2.5 and 1.3.1 releases of Bukkit/Tekkit
-        // TODO: once Tekkit is based on 1.3.1, all this can be removed along with the synchronous player chat handler.
-        try {
-            Class.forName("org.bukkit.event.player.AsyncPlayerChatEvent");
-            PlayerAsyncChatListenerImpl l = new PlayerAsyncChatListenerImpl();
-            PluginManager pm = Global.plugin.getServer().getPluginManager();
-            pm.registerEvents(l, Global.plugin);
-            /*
-            AsyncPlayerChatEvent.getHandlerList().register(new RegisteredListener(
-                    this,
-                    new EventExecutor() {
-                        @Override
-                        public void execute(Listener listener, Event event) throws EventException {
-                            onPlayerChatAsync((AsyncPlayerChatEvent)event);
-                        }
-                    },
-                    EventPriority.MONITOR,
-                    Global.plugin,
-                    true)
-                    );
-            */
-            Utils.debug("registered as listener for Asynchronous chat events");
-        } catch (ClassNotFoundException e) {
-            PlayerChatEvent.getHandlerList().register(new RegisteredListener(
-                    this,
-                    new EventExecutor() {
-                        @Override
-                        public void execute(Listener listener, Event event) throws EventException {
-                            onPlayerChatSync((PlayerChatEvent)event);
-                        }
-                    },
-                    EventPriority.MONITOR,
-                    Global.plugin,
-                    true)
-                    );
-            Utils.debug("registered as listener for Synchronous chat events");
-        }
-    }
-
-
-    //private Map<Player,Location> playerLocations = new HashMap<Player,Location>();
 
     public static Player testPlayer = null;
 
@@ -337,12 +288,19 @@ public final class PlayerListenerImpl implements Listener {
         Context ctx = new Context(player);
 
         if ((r != null) && r.isDeparting()) {
+
+            if (Config.getResendLostPlayers()) {
+                // try to send them again
+                Server server = ((RemoteGateImpl)r.getDepartureGate()).server;
+                if (server.sendPlayer(player)) return;
+            }
             ctx.warnLog("You're not supposed to be here.");
             r = null;
         }
 
         for (Server server : Servers.getAll())
             server.sendPlayerJoin(player, r != null);
+        TabList.startPlayer(player);
         if (r == null) {
             LocalGateImpl gate = Gates.findGateForPortal(player.getLocation());
             if (gate != null)
@@ -355,12 +313,15 @@ public final class PlayerListenerImpl implements Listener {
         } catch (ReservationException e) {
             ctx.warnLog("there was a problem processing your arrival: ", e.getMessage());
         }
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         ReservationImpl r = ReservationImpl.get(player);
+
+        TabList.stopPlayer(player);
 
         for (Server server : Servers.getAll())
             server.sendPlayerQuit(player, r != null);
@@ -392,10 +353,9 @@ public final class PlayerListenerImpl implements Listener {
         Realm.onRespawn(player);
     }
 
-    // TODO: uncomment this when Tekkit goes to a 1.3.1, also remove PlayerAsyncChatListenerImpl
-    /*
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChatAsync(final AsyncPlayerChatEvent event) {
+        Utils.debug("chat event is canceled: %s", event.isCancelled());
         if (event.isAsynchronous())
             Utils.fire(new Runnable() {
                 @Override
@@ -405,12 +365,6 @@ public final class PlayerListenerImpl implements Listener {
             });
         else
             Chat.send(event.getPlayer(), event.getMessage(), event.getFormat());
-    }
-    */
-
-    // TODO: remove this when Tekkit goes to a 1.3.1 RB
-    public void onPlayerChatSync(PlayerChatEvent event) {
-        Chat.send(event.getPlayer(), event.getMessage(), event.getFormat());
     }
 
 }

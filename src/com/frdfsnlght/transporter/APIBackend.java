@@ -15,12 +15,14 @@
  */
 package com.frdfsnlght.transporter;
 
+import com.frdfsnlght.transporter.api.TypeMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import com.frdfsnlght.transporter.api.RemoteException;
 import com.frdfsnlght.transporter.api.TransporterException;
 import org.bukkit.ChatColor;
+import com.frdfsnlght.transporter.api.event.RemoteRequestReceivedEvent;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -99,10 +101,10 @@ public final class APIBackend {
         Utils.logger.log(Level.INFO, String.format("[%s] (API-DEBUG) %s", Global.pluginName, msg));
     }
 
-    public static void invoke(String target, String method, TypeMap args, TypeMap out) throws TransporterException {
+    public static void invoke(String target, String method, TypeMap args, TypeMap out, Server source) throws TransporterException {
         debug("invoke %s.%s: %s", target, method, args);
         if (target.equals("server"))
-            invokeServerMethod(method, args, out);
+            invokeServerMethod(method, args, out, source);
         else if (target.equals("world"))
             invokeWorldMethod(method, args, out);
         else if (target.equals("player"))
@@ -112,13 +114,19 @@ public final class APIBackend {
             throw new RemoteException("unknown API target '%s'", target);
     }
 
-    private static void invokeServerMethod(String method, TypeMap args, TypeMap out) throws TransporterException {
+    private static void invokeServerMethod(String method, TypeMap args, TypeMap out, Server source) throws TransporterException {
         org.bukkit.Server server = Global.plugin.getServer();
         if (method.equals("broadcast"))
             out.put("result", server.broadcast(args.getString("message"), args.getString("permission")));
         else if (method.equals("broadcastMessage"))
             out.put("result", server.broadcastMessage(args.getString("message")));
-        else if (method.equals("dispatchCommand")) {
+        else if (method.equals("remoteRequest")) {
+            TypeMap request = args.getMap("request");
+            TypeMap response = new TypeMap();
+            RemoteRequestReceivedEvent event = new RemoteRequestReceivedEvent(source, request, response);
+            server.getPluginManager().callEvent(event);
+            response.put("cancelled", event.isCancelled());
+        } else if (method.equals("dispatchCommand")) {
             String senderStr = args.getString("sender");
             CommandSender sender = null;
             if ("console".equals(senderStr))
